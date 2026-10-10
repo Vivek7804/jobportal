@@ -23,7 +23,10 @@ database_uri = os.environ.get("DATABASE_URL", f"sqlite:///{default_sqlite_path}"
 if database_uri.startswith("mysql://"):
     database_uri = database_uri.replace("mysql://", "mysql+mysqlconnector://", 1)
 
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-me-in-production')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+
+if not app.config['SECRET_KEY']:
+    raise RuntimeError("SECRET_KEY environment variable is required")
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', 'static/uploads')
