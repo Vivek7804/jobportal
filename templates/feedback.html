@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Nest - Submit Feedback</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2C3E50;
+            --secondary-color: #3498DB;
+            --accent-color: #E74C3C;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #2C3E50 0%, #3498DB 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 0.2rem;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498DB 0%, #2C3E50 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+        .feedback-icon {
+            font-size: 48px;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 20px;
+            }
+
+            .btn-primary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="container">
+            <h1>Share Your Thoughts</h1>
+            <p class="lead">Help us improve your Skill Nest experience</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-comments feedback-icon"></i>
+                            <h2 class="mb-3">Submit Your Feedback</h2>
+                            <p class="text-muted">Your feedback helps us create a better platform for everyone</p>
+                        </div>
+
+                        <form id="feedbackForm" method="POST" action="{{ url_for('submit_feedback') }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <div class="form-group">
+                                <label for="name">Name <span class="text-danger">*</span></label>
+                                <input type="text" id="name" name="name" class="form-control" placeholder="Enter your name" value="{{ request.form.get('name', '') }}" required aria-label="Name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email <span class="text-danger">*</span></label>
+                                <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" value="{{ request.form.get('email', '') }}" required aria-label="Email">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="feedback_type">Feedback Type <span class="text-danger">*</span></label>
+                                <select id="feedback_type" name="feedback_type" class="form-control" required aria-label="Feedback Type">
+                                    <option value="" disabled selected>Select feedback type</option>
+                                    <option value="Bug" {% if request.form.get('feedback_type') == 'Bug' %}selected{% endif %}>Bug Report</option>
+                                    <option value="Suggestion" {% if request.form.get('feedback_type') == 'Suggestion' %}selected{% endif %}>Feature Suggestion</option>
+                                    <option value="General" {% if request.form.get('feedback_type') == 'General' %}selected{% endif %}>General Feedback</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Message <span class="text-danger">*</span></label>
+                                <textarea id="message" name="message" class="form-control" rows="5" maxlength="500" placeholder="Write your feedback here..." required aria-label="Message">{{ request.form.get('message', '') }}</textarea>
+                                <div class="char-counter" id="charCounter">0/500</div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-paper-plane mr-2"></i>Submit Feedback
+                            </button>
+                        </form>
+
+                        {% if error %}
+                            <div class="alert alert-danger mt-4" role="alert">
+                                <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
+                            </div>
+                        {% endif %}
+
+                        {% if success %}
+                            <div class="alert alert-success mt-4" role="alert">
+                                <i class="fas fa-check-circle mr-2"></i>{{ success }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messageInput = document.getElementById('message');
+        const charCounter = document.getElementById('charCounter');
+
+        messageInput.addEventListener('input', () => {
+            const currentLength = messageInput.value.length;
+            charCounter.textContent = `${currentLength}/500`;
+        });
+    </script>
+</body>
+</html>

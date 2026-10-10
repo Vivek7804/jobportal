@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Notifications | SkillNest{% endblock %}
+
+{% block content %}
+<section class="hero-panel fade-up mb-4">
+    <h1 class="h3 mb-1">Notification Inbox</h1>
+    <p class="mb-0 opacity-75">Review candidate activity and keep your workflow clean.</p>
+</section>
+
+<section class="panel fade-up">
+    <div class="panel-header d-flex justify-content-between align-items-center">
+        <span>Notification Timeline</span>
+        <form action="{{ url_for('mark_all_notifications_read') }}" method="POST">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-soft">Mark All Read</button>
+        </form>
+    </div>
+    <div class="p-3">
+        {% if notifications %}
+            <div class="d-flex flex-column gap-3">
+                {% for notification in notifications %}
+                    <article class="glass-card p-3 p-md-4 d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <p class="mb-1 fw-semibold">{{ notification.message }}</p>
+                            <small class="text-muted">Received on {{ notification.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                            {% if notification.is_read %}
+                                <div><span class="chip chip-success mt-2">Read</span></div>
+                            {% else %}
+                                <div><span class="chip chip-warning mt-2">Unread</span></div>
+                            {% endif %}
+                        </div>
+                        {% if not notification.is_read %}
+                            <form action="{{ url_for('mark_notification_read', notification_id=notification.id) }}" method="POST" class="d-inline">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-brand">Mark Read</button>
+                            </form>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-bell-slash fa-2x text-muted mb-3"></i>
+                <p class="mb-0 text-muted">No unread notifications.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

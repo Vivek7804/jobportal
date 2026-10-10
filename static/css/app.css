@@ -1,0 +1,308 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
+
+:root {
+    --bg-canvas: #f4f8fb;
+    --bg-soft: #ecf3f8;
+    --surface: #ffffff;
+    --surface-elevated: #fefefe;
+    --ink: #102133;
+    --muted: #5a6a7f;
+    --line: #d7e3ee;
+    --primary: #0b6d8a;
+    --primary-strong: #0a5d76;
+    --accent: #e8751a;
+    --success: #1f9d6d;
+    --danger: #c64a4a;
+    --shadow-lg: 0 18px 45px rgba(16, 33, 51, 0.12);
+    --shadow-md: 0 12px 28px rgba(16, 33, 51, 0.09);
+    --radius-xl: 24px;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Manrope", sans-serif;
+    color: var(--ink);
+    background:
+        radial-gradient(circle at 10% -10%, rgba(11, 109, 138, 0.15), transparent 30%),
+        radial-gradient(circle at 90% 0%, rgba(232, 117, 26, 0.12), transparent 35%),
+        var(--bg-canvas);
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Sora", sans-serif;
+    letter-spacing: -0.02em;
+}
+
+a {
+    color: inherit;
+}
+
+.site-shell {
+    min-height: calc(100vh - 260px);
+}
+
+.site-navbar {
+    backdrop-filter: blur(14px);
+    background: linear-gradient(110deg, rgba(10, 93, 118, 0.9), rgba(11, 109, 138, 0.9));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 24px rgba(5, 35, 48, 0.2);
+}
+
+.site-navbar .navbar-brand {
+    font-family: "Sora", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.site-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 10px;
+    padding: 0.45rem 0.8rem !important;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.site-navbar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
+}
+
+.notif-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    margin-left: 6px;
+    padding: 0 5px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: #ffb74d;
+    color: #243447;
+}
+
+.notif-toast-wrap {
+    z-index: 1090;
+}
+
+.hero-panel {
+    background: linear-gradient(130deg, #08374a 0%, #0b6d8a 58%, #16a4bf 100%);
+    color: #f7fdff;
+    border-radius: var(--radius-xl);
+    padding: 2.2rem;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-panel::before,
+.hero-panel::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    opacity: 0.22;
+}
+
+.hero-panel::before {
+    width: 240px;
+    height: 240px;
+    background: #ffbf7d;
+    top: -80px;
+    right: -40px;
+}
+
+.hero-panel::after {
+    width: 160px;
+    height: 160px;
+    background: #5ee6ff;
+    bottom: -50px;
+    left: -45px;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.metric-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.15rem;
+    box-shadow: 0 6px 14px rgba(16, 33, 51, 0.06);
+    height: 100%;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+.metric-value {
+    font-family: "Sora", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 0.45rem;
+}
+
+.panel {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 24px rgba(16, 33, 51, 0.06);
+}
+
+.panel-header {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--line);
+    font-family: "Sora", sans-serif;
+    font-weight: 600;
+}
+
+.job-card {
+    background: var(--surface-elevated);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 24px rgba(16, 33, 51, 0.06);
+    transition: transform 0.24s ease, box-shadow 0.24s ease;
+    overflow: hidden;
+    height: 100%;
+}
+
+.job-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 32px rgba(16, 33, 51, 0.1);
+}
+
+.job-meta {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    padding: 0.28rem 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.chip-primary {
+    background: rgba(11, 109, 138, 0.1);
+    color: var(--primary);
+    border-color: rgba(11, 109, 138, 0.22);
+}
+
+.chip-success {
+    background: rgba(31, 157, 109, 0.12);
+    color: var(--success);
+    border-color: rgba(31, 157, 109, 0.24);
+}
+
+.chip-warning {
+    background: rgba(232, 117, 26, 0.14);
+    color: #a95a15;
+    border-color: rgba(232, 117, 26, 0.24);
+}
+
+.btn-brand {
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 1rem;
+    font-weight: 700;
+    background: var(--primary);
+    color: #fff;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-brand:hover {
+    background: var(--primary-strong);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-soft {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    padding: 0.55rem 1rem;
+    font-weight: 700;
+}
+
+.btn-soft:hover {
+    border-color: #b9d0e3;
+    background: #f7fbff;
+    color: var(--ink);
+}
+
+.job-image {
+    width: 62px;
+    height: 62px;
+    border-radius: 14px;
+    object-fit: cover;
+    border: 1px solid var(--line);
+}
+
+.site-footer {
+    background: linear-gradient(125deg, #102133, #15334b);
+    color: #d3deea;
+    margin-top: 4rem;
+    padding: 2.8rem 0 1.2rem;
+}
+
+.site-footer a {
+    color: #9bc6dc;
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    color: #ffffff;
+}
+
+.table-modern {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: #f6fbff;
+}
+
+.fade-up {
+    animation: fadeUp 0.45s ease both;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 991px) {
+    .hero-panel {
+        padding: 1.6rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .metric-value {
+        font-size: 1.25rem;
+    }
+}

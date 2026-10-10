@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillNest{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/linkedin.css') }}">
+    <script>
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme) { document.documentElement.setAttribute('data-theme', storedTheme); }
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    </script>
+    {% block head_extra %}{% endblock %}
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    {% set role = session.get('role') %}
+    <nav class="navbar navbar-expand-lg site-navbar px-2">
+        <div class="container-fluid d-flex align-items-center" style="max-width: 1128px;">
+            <a class="navbar-brand me-2" href="{{ url_for('home') }}">
+                <i class="fab fa-linkedin text-primary" style="font-size: 2.2rem;"></i>
+            </a>
+            
+            <div class="linkedin-search-container d-none d-lg-block me-auto">
+                <i class="fas fa-search linkedin-search-icon"></i>
+                <input type="text" class="linkedin-search" placeholder="Search">
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto align-items-center mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-icon {{ 'active' if request.endpoint == 'home' else '' }}" href="{{ url_for('home') }}">
+                            <i class="fas fa-home"></i>
+                            <span class="d-none d-lg-block">Home</span>
+                        </a>
+                    </li>
+                    {% if session.get('username') %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-icon {{ 'active' if request.endpoint == 'mynetwork' else '' }}" href="{{ url_for('mynetwork') }}">
+                            <i class="fas fa-user-friends"></i>
+                            <span class="d-none d-lg-block">My Network</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-icon {{ 'active' if 'job' in request.endpoint else '' }}" href="{{ url_for('jobseeker_dashboard') if role == 'jobseeker' else url_for('manage_job') }}">
+                            <i class="fas fa-briefcase"></i>
+                            <span class="d-none d-lg-block">Jobs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-icon {{ 'active' if request.endpoint == 'messaging' else '' }}" href="{{ url_for('messaging') }}">
+                            <i class="fas fa-comment-dots"></i>
+                            <span class="d-none d-lg-block">Messaging</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-icon {{ 'active' if request.endpoint == 'notifications' else '' }}" href="{{ url_for('notifications') }}">
+                            <div class="position-relative">
+                                <i class="fas fa-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="navNotifBadge" style="font-size: 0.6rem;">0</span>
+                            </div>
+                            <span class="d-none d-lg-block">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link nav-item-icon dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% set current_user = get_current_user() %}
+                            {% if current_user and current_user.profile_picture %}
+                                <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" class="ln-avatar-xs" alt="Me">
+                            {% else %}
+                                <i class="fas fa-user-circle" style="font-size: 1.25rem;"></i>
+                            {% endif %}
+                            <span class="d-none d-lg-block">Me</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" aria-labelledby="profileDropdown">
+                            <li class="px-3 py-3" style="min-width: 240px;">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    {% if current_user and current_user.profile_picture %}
+                                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" class="ln-avatar-md" alt="Me">
+                                    {% else %}
+                                        <i class="fas fa-user-circle fa-2x"></i>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ session.get('username') }}</div>
+                                        <div class="small text-muted text-truncate" style="max-width: 150px;">{{ current_user.headline or 'Job Seeker' if role == 'jobseeker' else 'Recruiter' }}</div>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('profile') }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold">View Profile</a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% if role == 'superadmin' %}
+                            <li><a class="dropdown-item" href="{{ url_for('superadmin_dashboard') }}">Admin Panel</a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Sign Out</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-outline-primary rounded-pill px-3" href="{{ url_for('signin') }}">Sign in</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-primary rounded-pill px-3" href="{{ url_for('signup') }}">Join now</a>
+                    </li>
+                    {% endif %}
+                    
+                    <!-- Dark Mode Toggle -->
+                    <li class="nav-item ms-3 border-start ps-3 border-secondary d-none d-lg-block">
+                        <button class="theme-toggle-btn" id="themeToggle" title="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="site-shell">
+        <div class="ln-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }} alert-dismissible fade show mb-3 ln-card border-0" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="site-footer mt-5 py-5">
+        <div class="container" style="max-width: 1128px;">
+            <div class="row g-4 text-center text-lg-start">
+                <div class="col-lg-3">
+                    <h5 class="text-white mb-3 fw-bold">SkillNest</h5>
+                    <p class="small opacity-75">Transforming professional networking and career growth with modern technology.</p>
+                </div>
+                <div class="col-lg-2 ms-auto">
+                    <h6 class="text-white fw-bold mb-3">General</h6>
+                    <ul class="list-unstyled small opacity-75">
+                        <li class="mb-2"><a href="{{ url_for('signin') }}">Sign In</a></li>
+                        <li class="mb-2"><a href="{{ url_for('signup') }}">Join Now</a></li>
+                        <li class="mb-2"><a href="{{ url_for('about') }}">About</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2">
+                    <h6 class="text-white fw-bold mb-3">Resources</h6>
+                    <ul class="list-unstyled small opacity-75">
+                        <li class="mb-2"><a href="{{ url_for('blog') }}">Blog</a></li>
+                        <li class="mb-2"><a href="{{ url_for('feedback_form') }}">Feedback</a></li>
+                        <li class="mb-2"><a href="{{ url_for('contact_us') }}">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 text-lg-end">
+                    <h6 class="text-white fw-bold mb-3">Contact</h6>
+                    <p class="small opacity-75 mb-1">skillnestteam@gmail.com</p>
+                    <p class="small opacity-75">+91 76495 88032</p>
+                </div>
+            </div>
+            <div class="border-top border-secondary mt-4 pt-3 text-center small opacity-50">
+                &copy; 2026 SkillNest. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <div class="position-fixed bottom-0 end-0 p-3 notif-toast-wrap">
+        <div id="liveNotifToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="liveNotifText">New notification</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% if session.get('username') %}
+    <script>
+    (function() {
+        const badge = document.getElementById('navNotifBadge');
+        const toastEl = document.getElementById('liveNotifToast');
+        const toastText = document.getElementById('liveNotifText');
+        let knownIds = new Set();
+        let firstLoad = true;
+        let toast;
+
+        if (toastEl && window.bootstrap) {
+            toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+        }
+
+        async function pollNotifications() {
+            try {
+                const res = await fetch("{{ url_for('notification_poll') }}", { cache: 'no-store' });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (badge) {
+                    const count = Number(data.unread_count || 0);
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                }
+
+                const incoming = Array.isArray(data.notifications) ? data.notifications : [];
+                if (!firstLoad) {
+                    for (const item of incoming) {
+                        if (!knownIds.has(item.id) && toast && toastText) {
+                            toastText.textContent = item.message || 'You have a new notification.';
+                            toast.show();
+                            break;
+                        }
+                    }
+                }
+
+                knownIds = new Set(incoming.map(item => item.id));
+                firstLoad = false;
+            } catch (err) {}
+        }
+
+        pollNotifications();
+        setInterval(pollNotifications, 12000);
+    })();
+    </script>
+    {% endif %}
+    <script>
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+        const doc = document.documentElement;
+        const icon = document.querySelector('#themeToggle i');
+        if (doc.getAttribute('data-theme') === 'dark') {
+            doc.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            icon.classList.replace('fa-sun', 'fa-moon');
+        } else {
+            doc.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            icon.classList.replace('fa-moon', 'fa-sun');
+        }
+    });
+
+    // Update icon on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const doc = document.documentElement;
+        const icon = document.querySelector('#themeToggle i');
+        if (doc.getAttribute('data-theme') === 'dark') {
+            icon?.classList.replace('fa-moon', 'fa-sun');
+        }
+    });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

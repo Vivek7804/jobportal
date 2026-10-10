@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Jobs Per Job Status</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        .no-data-message {
+            display: none;
+            text-align: center;
+            font-size: 1.2em;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Total Jobs Per Job Status</h2>
+
+    <!-- Table to display job counts per job status -->
+    <table id="jobsTable">
+        <thead>
+            <tr>
+                <th>Job Status</th>
+                <th>Total Jobs</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+            <tr>
+                <td>{{ item.job_status }}</td>
+                <td>{{ item.total_jobs }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Optional message when there's no data -->
+    <div class="no-data-message" id="noDataMessage">
+        <p>No job applications found for the selected date range.</p>
+    </div>
+
+    <!-- Graph to display job counts per job status -->
+    <canvas id="jobStatusChart" width="400" height="200"></canvas>
+
+    <script>
+        // Ensure job_statuses and job_counts are not undefined
+        var jobStatuses = {{ job_statuses | tojson }};
+        var jobCounts = {{ job_counts | tojson }};
+        
+        // If the lists are empty, prevent rendering the chart
+        if (jobStatuses.length > 0 && jobCounts.length > 0) {
+            // Display the chart
+            var ctx = document.getElementById('jobStatusChart').getContext('2d');
+            var jobStatusChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: jobStatuses,
+                    datasets: [{
+                        label: 'Total Jobs',
+                        data: jobCounts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } else {
+            // Hide the chart and show no data message
+            document.getElementById('jobStatusChart').style.display = 'none';
+            document.getElementById('noDataMessage').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>

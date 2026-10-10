@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Recruiter Dashboard | SkillNest{% endblock %}
+
+{% block content %}
+<section class="hero-panel fade-up mb-4">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+            <p class="text-uppercase mb-2 small fw-semibold">Recruiter Command Center</p>
+            <h1 class="display-6 mb-2">Welcome back, {{ user.username }}</h1>
+            <p class="mb-0 opacity-75">Track your pipelines, monitor job performance, and move candidates faster.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{{ url_for('add_job') }}" class="btn btn-light fw-semibold px-4 py-2 me-2">
+                <i class="fas fa-plus me-2"></i>Post Job
+            </a>
+            <a href="{{ url_for('manage_job') }}" class="btn btn-soft px-4 py-2">Manage Jobs</a>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4 fade-up">
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <div class="metric-label">Total Jobs</div>
+            <div class="metric-value">{{ metrics.total_jobs }}</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <div class="metric-label">Open Jobs</div>
+            <div class="metric-value">{{ metrics.open_jobs }}</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <div class="metric-label">Applications</div>
+            <div class="metric-value">{{ metrics.total_applications }}</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <div class="metric-label">Unread Alerts</div>
+            <div class="metric-value">{{ metrics.unread_notifications }}</div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 fade-up">
+    <div class="col-xl-7">
+        <div class="panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-briefcase me-2"></i>Recent Jobs</span>
+                <a href="{{ url_for('manage_job') }}" class="btn btn-sm btn-soft">See All</a>
+            </div>
+            <div class="p-3">
+                {% if jobs %}
+                    <div class="table-responsive">
+                        <table class="table table-modern align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Role</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Salary</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for job in jobs %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">{{ job.title }}</div>
+                                            <small class="text-muted">{{ job.company }}</small>
+                                        </td>
+                                        <td>{{ job.location }}</td>
+                                        <td>
+                                            <span class="chip {% if job.job_status|lower == 'open' %}chip-success{% else %}chip-warning{% endif %}">
+                                                {{ job.job_status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if job.salary %}
+                                                ₹{{ "%.1f"|format(job.salary|float) }} LPA
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            <a class="btn btn-sm btn-soft" href="{{ url_for('update_job', job_id=job.id) }}">Edit</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center p-4">
+                        <p class="mb-3 text-muted">No jobs posted yet.</p>
+                        <a href="{{ url_for('add_job') }}" class="btn btn-brand">Create your first job</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-5">
+        <div class="panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-user-clock me-2"></i>Recent Applicants</span>
+                <a href="{{ url_for('admin_notifications') }}" class="btn btn-sm btn-soft">Inbox</a>
+            </div>
+            <div class="p-3">
+                {% if recent_applications %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for entry in recent_applications %}
+                            <div class="glass-card p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="fw-semibold">{{ entry.candidate_name }}</div>
+                                        <div class="small text-muted">{{ entry.candidate_email or "Email not available" }}</div>
+                                    </div>
+                                    <small class="text-muted">{{ entry.applied_at.strftime('%d %b') }}</small>
+                                </div>
+                                <div class="small mt-2">
+                                    Applied for <span class="fw-semibold">{{ entry.job_title }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No applications yet. Promote your jobs to start receiving candidates.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mt-1 fade-up">
+    <div class="col-md-6">
+        <div class="metric-card">
+            <div class="metric-label">Average Salary Offered</div>
+            <div class="metric-value">
+                {% if metrics.average_salary %}
+                    ₹{{ "%.1f"|format(metrics.average_salary) }} LPA
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="metric-card">
+            <div class="metric-label">Quick Actions</div>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <a href="{{ url_for('add_job') }}" class="btn btn-brand btn-sm">Post New Job</a>
+                <a href="{{ url_for('manage_job') }}" class="btn btn-soft btn-sm">Review Listings</a>
+                <a href="{{ url_for('candidates_view') }}" class="btn btn-soft btn-sm">Candidates</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

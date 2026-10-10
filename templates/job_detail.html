@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} | SkillNest{% endblock %}
+
+{% block content %}
+<section class="hero-panel mb-4 fade-up">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <p class="text-uppercase small mb-1 opacity-75">Opportunity Overview</p>
+            <h1 class="display-6 mb-1">{{ job.title }}</h1>
+            <p class="mb-0 opacity-75">{{ job.company }} • {{ job.location }}</p>
+        </div>
+        <span class="chip {% if job.job_status|lower == 'open' %}chip-success{% else %}chip-warning{% endif %} fs-6">
+            {{ job.job_status }}
+        </span>
+    </div>
+</section>
+
+<section class="row g-4 fade-up">
+    <div class="col-xl-8">
+        <article class="panel p-4">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                {% if job.photo %}
+                    <img src="{{ url_for('static', filename='uploads/' + job.photo) }}" alt="{{ job.title }}" class="job-image" style="width:82px;height:82px;">
+                {% else %}
+                    <div class="job-image d-flex align-items-center justify-content-center bg-light" style="width:82px;height:82px;">
+                        <i class="fas fa-building text-secondary"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <h2 class="h4 mb-1">{{ job.company }}</h2>
+                    <p class="job-meta mb-0">Posted on {{ job.created_at.strftime('%d %b, %Y') }}</p>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                    <div class="metric-card">
+                        <div class="metric-label">Job Type</div>
+                        <div class="metric-value h5">{{ job.job_type }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="metric-card">
+                        <div class="metric-label">Salary</div>
+                        <div class="metric-value h5">
+                            {% if job.salary %}
+                                ₹{{ "%.1f"|format(job.salary|float) }} LPA
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="metric-card">
+                        <div class="metric-label">Experience</div>
+                        <div class="metric-value h5">{{ job.experience or 0 }}+ years</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="metric-card">
+                        <div class="metric-label">Openings</div>
+                        <div class="metric-value h5">{{ job.vacancy or 0 }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="mb-4">
+                <h3 class="h5 mb-2">Role Summary</h3>
+                <p class="text-muted mb-0">{{ job.description or "Description not provided." }}</p>
+            </section>
+
+            <section class="mb-4">
+                <h3 class="h5 mb-2">Requirements</h3>
+                <ul class="mb-0 text-muted">
+                    {% for req in (job.requirements or '').split('\n') %}
+                        {% if req.strip() %}
+                            <li>{{ req.strip() }}</li>
+                        {% endif %}
+                    {% else %}
+                        <li>No specific requirements listed.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section>
+                <h3 class="h5 mb-2">Qualifications</h3>
+                <ul class="mb-0 text-muted">
+                    {% for qual in (job.qualifications or '').split('\n') %}
+                        {% if qual.strip() %}
+                            <li>{{ qual.strip() }}</li>
+                        {% endif %}
+                    {% else %}
+                        <li>No specific qualifications listed.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </article>
+    </div>
+
+    <div class="col-xl-4">
+        <aside class="panel p-4">
+            <h3 class="h5 mb-3">Actions</h3>
+            <div class="d-grid gap-2">
+                {% if session.get('role') == 'jobseeker' %}
+                    {% if user_applied %}
+                        <form action="{{ url_for('withdraw_application', job_id=job.id) }}" method="POST">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger w-100">Withdraw Application</button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('apply_job', job_id=job.id) }}" method="POST">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-brand w-100">Apply Now</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+                <a href="{{ url_for('jobseeker_dashboard') if session.get('role') == 'jobseeker' else url_for('home') }}" class="btn btn-soft w-100">
+                    Back to Listings
+                </a>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

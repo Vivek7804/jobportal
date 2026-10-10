@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal Reports</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center">Job Portal Reports</h2>
+
+        <!-- Date Filter -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label>Start Date:</label>
+                <input type="date" id="startDate" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label>End Date:</label>
+                <input type="date" id="endDate" class="form-control">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary" onclick="fetchAllReports()">Generate Reports</button>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Total Jobs Per Company</h4>
+                <canvas id="chartJobsCompany"></canvas>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Jobs Per Location</h4>
+                <canvas id="chartJobsLocation"></canvas>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Jobs Per Type</h4>
+                <canvas id="chartJobsType"></canvas>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Jobs Per Status</h4>
+                <canvas id="chartJobsStatus"></canvas>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Applications Per Job</h4>
+                <canvas id="chartApplicationsJob"></canvas>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Applications Per User</h4>
+                <canvas id="chartApplicationsUser"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let charts = {}; // सभी चार्ट्स को स्टोर करने के लिए
+    
+        function fetchAllReports() {
+            let startDate = document.getElementById("startDate").value || "2000-01-01";
+            let endDate = document.getElementById("endDate").value || new Date().toISOString().split('T')[0];
+    
+            fetchReport('/reports/total_jobs_per_company', 'chartJobsCompany', startDate, endDate);
+            fetchReport('/reports/total_jobs_per_location', 'chartJobsLocation', startDate, endDate);
+            fetchReport('/reports/total_jobs_per_type', 'chartJobsType', startDate, endDate);
+            fetchReport('/reports/total_jobs_per_status', 'chartJobsStatus', startDate, endDate);
+            fetchReport('/reports/total_applications_per_job', 'chartApplicationsJob', startDate, endDate);
+            fetchReport('/reports/total_applications_per_user', 'chartApplicationsUser', startDate, endDate);
+        }
+    
+        function fetchReport(url, chartId, startDate, endDate) {
+            fetch(`${url}?start_date=${startDate}&end_date=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`Data for ${chartId}:`, data); // Debugging के लिए डेटा चेक करें
+                    if (data.length === 0) {
+                        console.warn(`${chartId} के लिए कोई डेटा नहीं मिला!`);
+                        return;
+                    }
+    
+                    let labels = data.map(row => Object.values(row)[0]);
+                    let values = data.map(row => Object.values(row)[1]);
+    
+                    renderChart(chartId, labels, values);
+                })
+                .catch(error => console.error('Error fetching', chartId, error));
+        }
+    
+        function renderChart(chartId, labels, data) {
+            let ctx = document.getElementById(chartId).getContext('2d');
+    
+            // अगर पुराना चार्ट मौजूद है, तो उसे डिलीट करें
+            if (charts[chartId]) {
+                charts[chartId].destroy();
+            }
+    
+            // नया चार्ट बनाएं और उसे store करें
+            charts[chartId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: chartId.replace('chart', '').replace(/([A-Z])/g, ' $1').trim(),
+                        data: data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

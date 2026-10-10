@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Applications Per User</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        .no-data-message {
+            display: none;
+            text-align: center;
+            font-size: 1.2em;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Total Applications Per User</h2>
+
+    <!-- Table displaying applications per user -->
+    <table id="applicationsTable">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Total Applications</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+            <tr>
+                <td>{{ item.username }}</td>
+                <td>{{ item.total_applications }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Message if no data is available -->
+    <div class="no-data-message" id="noDataMessage">
+        <p>No applications found for the selected date range.</p>
+    </div>
+
+    <!-- Graph for applications per user -->
+    <canvas id="userApplicationsChart" width="400" height="200"></canvas>
+
+    <script>
+        // Get usernames and application counts from Flask
+        var usernames = {{ usernames | tojson }};
+        var applicationCounts = {{ application_counts | tojson }};
+        
+        // If there is data, display the chart
+        if (usernames.length > 0 && applicationCounts.length > 0) {
+            var ctx = document.getElementById('userApplicationsChart').getContext('2d');
+            var userApplicationsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: usernames,
+                    datasets: [{
+                        label: 'Total Applications',
+                        data: applicationCounts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } else {
+            // Hide chart and show no-data message if no applications exist
+            document.getElementById('userApplicationsChart').style.display = 'none';
+            document.getElementById('noDataMessage').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>

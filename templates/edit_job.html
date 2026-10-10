@@ -1,0 +1,29 @@
+<h1>Edit Job</h1>
+
+<form method="POST">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label for="title">Job Title</label>
+    <input type="text" name="title" value="{{ job.title }}" required>
+
+    <label for="description">Description</label>
+    <textarea name="description">{{ job.description }}</textarea>
+
+    <label for="company">Company</label>
+    <input type="text" name="company" value="{{ job.company }}">
+
+    <label for="location">Location</label>
+    <input type="text" name="location" value="{{ job.location }}">
+
+    <label for="job_type">Job Type</label>
+    <input type="text" name="job_type" value="{{ job.job_type }}">
+
+    <label for="job_status">Job Status</label>
+    <input type="text" name="job_status" value="{{ job.job_status }}">
+
+    <label for="salary">Salary</label>
+    <input type="text" name="salary" value="{{ job.salary }}">
+
+    
+    <button type="submit">Save Changes</button>
+</form>
+

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Dashboard</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056b3;
+            --light-bg: #f8f9fa;
+            --text-dark: #343a40;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px var(--shadow);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        h2 {
+            color: var(--text-dark);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            width: 70px;
+            height: 3px;
+            background: var(--primary-color);
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        p {
+            color: var(--text-dark);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        /* Animation */
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 500px) {
+            .btn-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📊 Reports Dashboard</h2>
+        <p>Generate and view reports related to jobs and users.</p>
+        
+        <div class="btn-container">
+            <a class="btn" href="/job_reports"><i class="fas fa-briefcase"></i>Job Report</a>
+            <a class="btn" href="/user_reports"><i class="fas fa-user"></i>User Report</a>
+            <a class="btn" href="/feedback_report"><i class="fas fa-comment"></i>Feedback Report</a>
+            <a class="btn" href="/reports/total_jobs_per_company"><i class="fas fa-building"></i>Company Jobs</a>
+            <a class="btn" href="/reports/total_jobs_per_location"><i class="fas fa-map-marker-alt"></i>Jobs by Location</a>
+            <a class="btn" href="/reports/total_jobs_per_type"><i class="fas fa-clipboard-list"></i>Jobs by Type</a>
+            <a class="btn" href="/reports/total_jobs_per_status"><i class="fas fa-info-circle"></i>Jobs by Status</a>
+            <a class="btn" href="/reports/total_applications_per_job"><i class="fas fa-file-alt"></i>Applications per Job</a>
+            <a class="btn" href="/reports/total_applications_per_user"><i class="fas fa-users"></i>Applications per User</a>
+            <a class="btn" href="/reports/total_jobs_posted"><i class="fas fa-calendar-check"></i>Jobs In Range</a>
+        </div>
+    </div>
+</body>
+</html>

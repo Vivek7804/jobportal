@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+{% block title %}Feed | SkillNest{% endblock %}
+
+{% block content %}
+<div class="ln-feed-layout">
+    <!-- Left Sidebar: Mini Profile -->
+    <aside class="ln-left-sidebar ln-sticky-sidebar">
+        <div class="ln-card ln-profile-widget">
+            <div class="ln-profile-cover"></div>
+            <div class="ln-profile-avatar-wrap">
+                {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" alt="{{ user.username }}"
+                    class="ln-avatar ln-avatar-lg bg-white p-1">
+                {% else %}
+                <div
+                    class="ln-avatar ln-avatar-lg bg-light d-flex align-items-center justify-content-center m-auto border">
+                    <i class="fas fa-user-circle fa-3x text-secondary"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="ln-profile-name">
+                <a href="{{ url_for('profile') }}" class="text-decoration-none">{{ user.username }}</a>
+            </div>
+            <div class="ln-profile-headline">{{ user.headline or 'Job Seeker' }}</div>
+
+            <div class="border-top py-2 px-3 text-start">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-muted">Connections</span>
+                    <span class="text-primary fw-bold">{{ user.connected_count or 0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="text-muted">Profile viewers</span>
+                    <span class="text-primary fw-bold">{{ range(5, 50)|random }}</span>
+                </div>
+            </div>
+            <div class="border-top p-2 text-start small fw-bold">
+                <a href="{{ url_for('applied_jobs') }}" class="text-decoration-none hover-link">
+                    <i class="fas fa-bookmark me-2"></i>My Jobs
+                </a>
+            </div>
+        </div>
+
+        <div class="ln-card p-3">
+            <div class="fw-bold small mb-2">Recent</div>
+            <ul class="list-unstyled mb-0">
+                <li class="small mb-2"><i class="fas fa-hashtag me-2 text-muted"></i>python</li>
+                <li class="small mb-2"><i class="fas fa-hashtag me-2 text-muted"></i>webdev</li>
+                <li class="small"><i class="fas fa-hashtag me-2 text-muted"></i>careers</li>
+            </ul>
+        </div>
+
+        <div class="ln-card p-3">
+            <h5 class="small fw-bold mb-3 d-flex justify-content-between">
+                Add to your feed <i class="fas fa-info-circle text-muted"></i>
+            </h5>
+            {% for s_user in suggested_users %}
+            <div class="d-flex align-items-center gap-2 mb-3">
+                {% if s_user.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/' + s_user.profile_picture) }}"
+                    class="ln-avatar ln-avatar-sm" alt="">
+                {% else %}
+                <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                {% endif %}
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="small fw-bold text-truncate">{{ s_user.username }}</div>
+                    <div class="small text-muted text-truncate">{{ s_user.headline or 'Job Seeker' }}</div>
+                    <form action="{{ url_for('connect', receiver_id=s_user.id) }}" method="POST" class="follow-form mt-1">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold px-3 follow-btn">
+                            + Follow
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            <a href="#" class="text-decoration-none small text-muted fw-bold">View all recommendations <i
+                    class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="ln-card p-3">
+            <div class="small text-muted text-center">
+                <div class="mb-2">
+                    <a href="#" class="text-decoration-none mx-2 text-muted">About</a>
+                    <a href="#" class="text-decoration-none mx-2 text-muted">Help Center</a>
+                </div>
+                <div>SkillNest Corporation &copy; 2026</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Feed -->
+    <main class="ln-main-feed">
+        <!-- Post Input Card -->
+        <div class="ln-card ln-post-input-container">
+            <div class="ln-post-input-top">
+                {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" alt="Me"
+                    class="ln-avatar ln-avatar-sm">
+                {% else %}
+                <i class="fas fa-user-circle fa-3x text-secondary"></i>
+                {% endif %}
+                <button class="ln-post-input-btn" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                    Start a post
+                </button>
+            </div>
+            <div class="ln-post-input-actions">
+                <button class="ln-post-action" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                    <i class="fas fa-image"></i> Photo
+                </button>
+                <button class="ln-post-action">
+                    <i class="fas fa-video"></i> Video
+                </button>
+                <button class="ln-post-action">
+                    <i class="fas fa-calendar-alt"></i> Event
+                </button>
+                <button class="ln-post-action">
+                    <i class="fas fa-newspaper"></i> Write article
+                </button>
+            </div>
+        </div>
+
+        <!-- Posts List -->
+        <div id="posts-container">
+            {% for post in posts %}
+            <article class="ln-card ln-post fade-up">
+                <div class="ln-post-meta">
+                    <a href="{{ url_for('user_detail_with_id', user_id=post.user.id) }}">
+                        {% if post.user.profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/' + post.user.profile_picture) }}"
+                            alt="{{ post.user.username }}" class="ln-avatar ln-avatar-sm">
+                        {% else %}
+                        <i class="fas fa-user-circle fa-3x text-secondary"></i>
+                        {% endif %}
+                    </a>
+                    <div class="ln-post-user-info">
+                        <h4 class="mb-0"><a href="{{ url_for('user_detail_with_id', user_id=post.user.id) }}"
+                                class="text-decoration-none text-dark">{{ post.user.username }}</a></h4>
+                        <p class="mb-0 text-muted">{{ post.user.headline or 'Professional' }}</p>
+                        <p class="mb-0 text-muted small">{{ post.created_at.strftime('%b %d, %H:%M') }}</p>
+                    </div>
+                </div>
+                <div class="ln-post-text">
+                    {{ post.content }}
+                </div>
+                {% if post.media_url %}
+                <img src="{{ url_for('static', filename='uploads/' + post.media_url) }}" class="ln-post-image"
+                    alt="Post media">
+                {% endif %}
+
+                <div class="ln-post-stats">
+                    <span>
+                        <i class="fas fa-thumbs-up text-primary me-1"></i>
+                        <span id="likes-count-{{ post.id }}">{{ like_counts.get(post.id, 0) }}</span>
+                    </span>
+                    <span><span id="comments-count-{{ post.id }}">{{ comment_counts.get(post.id, 0) }}</span> comments</span>
+                </div>
+
+                <div class="ln-post-actions">
+                    <button class="ln-post-action-btn like-btn {{ 'active' if post.id in liked_post_ids else '' }}"
+                        data-post-id="{{ post.id }}">
+                        <i class="far fa-thumbs-up"></i> Like
+                    </button>
+                    <button class="ln-post-action-btn toggle-comments-btn" data-post-id="{{ post.id }}">
+                        <i class="far fa-comment-alt"></i> Comment
+                    </button>
+                    <button class="ln-post-action-btn">
+                        <i class="fas fa-share"></i> Share
+                    </button>
+                    <button class="ln-post-action-btn">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </div>
+
+                <!-- Comments Section (simplified) -->
+                <div id="comments-{{ post.id }}" class="p-3 border-top" style="display: none;">
+                    <form action="{{ url_for('comment_post', post_id=post.id) }}" method="POST"
+                        class="d-flex gap-2 mb-3 comment-form">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <input type="text" name="content" class="form-control form-control-sm rounded-pill"
+                            placeholder="Add a comment..." required>
+                        <button type="submit" class="btn btn-primary btn-sm rounded-pill comment-submit-btn">Post</button>
+                    </form>
+                    {% for comment in post.comments %}
+                    <div class="d-flex gap-2 mb-2">
+                        <div class="bg-light p-2 rounded w-100 position-relative">
+                            <h6 class="small fw-bold mb-0">{{ comment.user.username }}</h6>
+                            <p class="small mb-0">{{ comment.content }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        <div id="loading-spinner" class="text-center my-4 d-none">
+            <!-- Skeleton Loader -->
+            <div class="ln-card ln-post p-3 text-start mb-3" style="animation: pulse 1.5s infinite;">
+                <div class="d-flex gap-3 mb-3">
+                    <div class="rounded-circle bg-light" style="width: 48px; height: 48px;"></div>
+                    <div class="flex-grow-1">
+                        <div class="rounded bg-light mb-2" style="height: 16px; width: 30%;"></div>
+                        <div class="rounded bg-light" style="height: 12px; width: 20%;"></div>
+                    </div>
+                </div>
+                <div class="rounded bg-light mb-2" style="height: 14px; width: 100%;"></div>
+                <div class="rounded bg-light mb-2" style="height: 14px; width: 90%;"></div>
+                <div class="rounded bg-light" style="height: 14px; width: 60%;"></div>
+            </div>
+        </div>
+
+        {% if pagination.has_next %}
+        <div class="text-center my-4" id="scroll-trigger" data-next-page="{{ pagination.next_num }}">
+        </div>
+        {% endif %}
+    </main>
+</div>
+
+<style>
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0.6; }
+}
+</style>
+
+<!-- Create Post Modal -->
+<div class="modal fade" id="createPostModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content ln-card border-0">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title h6 fw-bold">Create a post</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('create_post') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        {% if user.profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}"
+                            class="ln-avatar ln-avatar-sm" alt="">
+                        {% else %}
+                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                        {% endif %}
+                        <span class="fw-bold">{{ user.username }}</span>
+                    </div>
+                    <textarea name="content" class="form-control border-0 bg-transparent mb-3" rows="4"
+                        placeholder="What do you want to talk about?" style="resize: none;"></textarea>
+                    <div class="p-2 border rounded">
+                        <label class="small fw-bold text-muted mb-1 d-block">Add media</label>
+                        <input type="file" name="media" class="form-control form-control-sm" accept="image/*,video/*">
+                    </div>
+                </div>
+                <div class="modal-footer border-top d-flex justify-content-between">
+                    <div class="d-flex gap-3 text-muted">
+                        <i class="far fa-image fa-lg cursor-pointer"></i>
+                        <i class="fab fa-youtube fa-lg cursor-pointer"></i>
+                        <i class="far fa-calendar-alt fa-lg cursor-pointer"></i>
+                    </div>
+                    <button type="submit" class="btn btn-primary rounded-pill fw-bold px-4">Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function updateCommentCount(postId, nextCount) {
+        const countEl = document.getElementById('comments-count-' + postId);
+        if (countEl) {
+            countEl.textContent = nextCount;
+        }
+    }
+
+    document.addEventListener('click', async function (e) {
+        // Follow/connect handling
+        const followBtn = e.target.closest('.follow-btn');
+        if (followBtn) {
+            e.preventDefault();
+            const form = followBtn.closest('.follow-form');
+            if (!form || followBtn.disabled) return;
+
+            const originalText = followBtn.innerHTML;
+            followBtn.disabled = true;
+            followBtn.textContent = 'Sending...';
+
+            try {
+                const resp = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await resp.json();
+                if (resp.ok && data.status === 'pending') {
+                    followBtn.textContent = 'Pending';
+                    followBtn.classList.remove('btn-outline-secondary');
+                    followBtn.classList.add('btn-secondary');
+                } else {
+                    followBtn.disabled = false;
+                    followBtn.innerHTML = originalText;
+                    alert(data.error || 'Unable to follow this profile right now.');
+                }
+            } catch (err) {
+                followBtn.disabled = false;
+                followBtn.innerHTML = originalText;
+                console.error('Follow failed', err);
+            }
+            return;
+        }
+
+        // Comment toggle handling
+        const toggleBtn = e.target.closest('.toggle-comments-btn');
+        if (toggleBtn) {
+            const postId = toggleBtn.dataset.postId;
+            const el = document.getElementById('comments-' + postId);
+            if (el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
+            return;
+        }
+
+        // Like button handling (event delegation)
+        const likeBtn = e.target.closest('.like-btn');
+        if (likeBtn) {
+            if (likeBtn.dataset.loading === 'true') return;
+            const postId = likeBtn.dataset.postId;
+            likeBtn.dataset.loading = 'true';
+            try {
+                const resp = await fetch(`/like_post/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                if (!resp.ok) {
+                    throw new Error('Unable to update like.');
+                }
+                const data = await resp.json();
+                const countEl = document.getElementById('likes-count-' + postId);
+                if (countEl) countEl.textContent = data.likes_count;
+                if (data.status === 'liked') {
+                    likeBtn.classList.add('active');
+                } else {
+                    likeBtn.classList.remove('active');
+                }
+            } catch (err) {
+                console.error('Like failed', err);
+            } finally {
+                likeBtn.dataset.loading = 'false';
+            }
+            return;
+        }
+
+        // Infinite scroll handling via IntersectionObserver
+        const scrollTrigger = document.getElementById('scroll-trigger');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const postsContainer = document.getElementById('posts-container');
+        
+        let isLoading = false;
+
+        const loadNextPage = async () => {
+            if (isLoading || !scrollTrigger) return;
+            
+            const nextPage = scrollTrigger.dataset.nextPage;
+            if (!nextPage) return;
+
+            isLoading = true;
+            loadingSpinner.classList.remove('d-none');
+            
+            try {
+                const resp = await fetch(`/feed?page=${nextPage}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await resp.json();
+
+                data.posts.forEach(post => {
+                    const postHtml = `
+                    <article class="ln-card ln-post fade-up">
+                        <div class="ln-post-meta">
+                            <a href="/user_detail/${post.user_id}">
+                                <i class="fas fa-user-circle fa-3x text-secondary"></i>
+                            </a>
+                            <div class="ln-post-user-info">
+                                <h4 class="mb-0"><a href="/user_detail/${post.user_id}" class="text-decoration-none text-dark">${post.username}</a></h4>
+                                <p class="mb-0 text-muted">${post.headline}</p>
+                                <p class="mb-0 text-muted small">${post.created_at}</p>
+                            </div>
+                        </div>
+                        <div class="ln-post-text">${post.content}</div>
+                        ${post.media_url ? `<img src="/static/uploads/${post.media_url}" class="ln-post-image" alt="Post media">` : ''}
+                        <div class="ln-post-stats">
+                            <span><i class="fas fa-thumbs-up text-primary me-1"></i> <span id="likes-count-${post.id}">${post.likes_count}</span></span>
+                            <span><span id="comments-count-${post.id}">${post.comments_count}</span> comments</span>
+                        </div>
+                        <div class="ln-post-actions">
+                            <button class="ln-post-action-btn like-btn ${post.is_liked ? 'active' : ''}" data-post-id="${post.id}">
+                                <i class="far fa-thumbs-up"></i> Like
+                            </button>
+                            <button class="ln-post-action-btn toggle-comments-btn" data-post-id="${post.id}">
+                                <i class="far fa-comment-alt"></i> Comment
+                            </button>
+                            <button class="ln-post-action-btn"><i class="fas fa-share"></i> Share</button>
+                            <button class="ln-post-action-btn"><i class="fas fa-paper-plane"></i> Send</button>
+                        </div>
+                        <div id="comments-${post.id}" class="p-3 border-top" style="display: none;">
+                            <form action="/comment_post/${post.id}" method="POST" class="d-flex gap-2 mb-3 comment-form">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                <input type="text" name="content" class="form-control form-control-sm rounded-pill" placeholder="Add a comment..." required>
+                                <button type="submit" class="btn btn-primary btn-sm rounded-pill comment-submit-btn">Post</button>
+                            </form>
+                        </div>
+                    </article>
+                `;
+                    postsContainer.insertAdjacentHTML('beforeend', postHtml);
+                });
+
+                if (data.has_next) {
+                    scrollTrigger.dataset.nextPage = data.next_page;
+                } else {
+                    scrollTrigger.remove();
+                    if (observer) observer.disconnect();
+                }
+            } catch (err) {
+                console.error('Load more failed', err);
+            } finally {
+                isLoading = false;
+                loadingSpinner.classList.add('d-none');
+            }
+        };
+
+        let observer;
+        if (scrollTrigger) {
+            observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    loadNextPage();
+                }
+            }, { rootMargin: '200px' });
+            observer.observe(scrollTrigger);
+        }
+    });
+
+    document.addEventListener('submit', async function (e) {
+        const commentForm = e.target.closest('.comment-form');
+        if (!commentForm) return;
+
+        e.preventDefault();
+        const submitBtn = commentForm.querySelector('.comment-submit-btn');
+        const input = commentForm.querySelector('input[name="content"]');
+        const content = input.value.trim();
+        if (!content || submitBtn.disabled) return;
+
+        submitBtn.disabled = true;
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = '...';
+
+        try {
+            const formData = new FormData(commentForm);
+            const resp = await fetch(commentForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            });
+            if (!resp.ok) {
+                throw new Error('Unable to post comment.');
+            }
+
+            const data = await resp.json();
+            const commentsWrapper = commentForm.closest('div[id^="comments-"]');
+            const postId = commentsWrapper ? commentsWrapper.id.replace('comments-', '') : '';
+            const safeUsername = escapeHtml(data.username || 'You');
+            const safeContent = escapeHtml(data.content || content);
+            const newCommentHtml = `
+                <div class="d-flex gap-2 mb-2">
+                    <div class="bg-light p-2 rounded w-100 position-relative">
+                        <h6 class="small fw-bold mb-0">${safeUsername}</h6>
+                        <p class="small mb-0">${safeContent}</p>
+                    </div>
+                </div>
+            `;
+            commentForm.insertAdjacentHTML('afterend', newCommentHtml);
+            input.value = '';
+
+            const serverCount = Number(data.comments_count);
+            if (postId) {
+                if (Number.isFinite(serverCount)) {
+                    updateCommentCount(postId, serverCount);
+                } else {
+                    const countEl = document.getElementById('comments-count-' + postId);
+                    const currentCount = Number(countEl ? countEl.textContent : 0) || 0;
+                    updateCommentCount(postId, currentCount + 1);
+                }
+            }
+        } catch (err) {
+            console.error('Comment failed', err);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    });
+</script>
+{% endblock %}

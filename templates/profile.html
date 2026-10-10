@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}{{ user.username }}'s Profile | SkillNest{% endblock %}
+
+{% block content %}
+<!-- Profile Layout Container -->
+<div class="ln-profile-layout">
+    <!-- Left Column: Main Content -->
+    <div class="ln-profile-main">
+        <!-- Main Profile Card -->
+        <div class="ln-card profile-main-card mb-3">
+            <div class="position-relative" style="height: 200px; background: linear-gradient(135deg, var(--ln-primary), var(--ln-accent));">
+                {% if user.cover_photo %}
+                    <img src="{{ url_for('static', filename='uploads/' + user.cover_photo) }}" alt="Cover Photo" class="w-100 h-100 object-fit-cover">
+                {% endif %}
+                <div class="position-absolute" style="bottom: -80px; left: 24px;">
+                    {% if user.profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" alt="{{ user.username }}" class="ln-avatar border border-4 border-white bg-white" style="width: 160px; height: 160px;">
+                    {% else %}
+                        <div class="ln-avatar border border-4 border-white bg-light d-flex align-items-center justify-content-center m-auto border" style="width: 160px; height: 160px;">
+                            <i class="fas fa-user-circle fa-7x text-secondary"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if user.id == session.get('user_id') %}
+                <a href="{{ url_for('edit_profile', user_id=user.id) }}" class="btn btn-light btn-sm position-absolute top-0 end-0 m-3 shadow-sm rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+                {% endif %}
+            </div>
+            
+            <div class="p-4" style="margin-top: 80px;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h1 class="h4 fw-bold mb-1">{{ user.username }}</h1>
+                        <p class="text-muted mb-2">{{ user.headline or 'Job Seeker' }}</p>
+                        <p class="small text-muted mb-0">
+                            <span class="me-2">{{ user.location or 'Pune, India' }}</span> &middot; 
+                            <a href="#" class="text-primary fw-bold text-decoration-none ms-2">{{ user.connected_count }} connections</a> &middot; 
+                            <a href="#" class="text-primary fw-bold text-decoration-none ms-2">Contact info</a>
+                        </p>
+                    </div>
+                    {% if user.id == session.get('user_id') %}
+                    <div class="d-flex gap-2">
+                        <div class="dropdown">
+                            <button class="btn btn-primary rounded-pill btn-sm fw-bold px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">Open to</button>
+                            <ul class="dropdown-menu shadow">
+                                <li><a class="dropdown-item fw-bold text-muted small" href="#">Finding a new job</a></li>
+                                <li><a class="dropdown-item fw-bold text-muted small" href="#">Hiring</a></li>
+                                <li><a class="dropdown-item fw-bold text-muted small" href="#">Providing services</a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary rounded-pill btn-sm fw-bold px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">Add profile section</button>
+                            <ul class="dropdown-menu shadow">
+                                <li><a class="dropdown-item fw-bold text-muted small" href="{{ url_for('add_work_experience') }}">Add Experience</a></li>
+                                <li><a class="dropdown-item fw-bold text-muted small" href="{{ url_for('add_education') }}">Add Education</a></li>
+                                <li><a class="dropdown-item fw-bold text-muted small" href="{{ url_for('add_skills') }}">Add Skills</a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary rounded-pill btn-sm fw-bold px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">More</button>
+                            <ul class="dropdown-menu shadow">
+                                <li><a class="dropdown-item fw-bold text-muted small" href="#"><i class="fas fa-paper-plane me-2"></i>Send profile in a message</a></li>
+                                <li><a class="dropdown-item fw-bold text-muted small" href="#"><i class="fas fa-download me-2"></i>Save to PDF</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-flex gap-2">
+                        <form action="{{ url_for('connect', receiver_id=user.id) }}" method="POST">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-primary rounded-pill btn-sm fw-bold px-4">Connect</button>
+                        </form>
+                        <a href="{{ url_for('messaging', user_id=user.id) }}" class="btn btn-outline-primary rounded-pill btn-sm fw-bold px-4">Message</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="ln-card mb-3">
+            <div class="ln-card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="h6 fw-bold mb-0">About</h2>
+                {% if user.id == session.get('user_id') %}
+                <a href="{{ url_for('edit_profile', user_id=user.id) }}" class="text-muted"><i class="fas fa-pencil-alt"></i></a>
+                {% endif %}
+            </div>
+            <div class="ln-card-body">
+                <p class="small mb-0">{{ user.bio or 'No bio provided yet.' }}</p>
+            </div>
+        </div>
+
+        <!-- Experience Section -->
+        <div class="ln-card mb-3">
+            <div class="ln-card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="h6 fw-bold mb-0">Experience</h2>
+                {% if user.id == session.get('user_id') %}
+                <a href="{{ url_for('add_work_experience') }}" class="text-muted"><i class="fas fa-plus"></i></a>
+                {% endif %}
+            </div>
+            <div class="ln-card-body">
+                {% if work_experience %}
+                    {% for experience in work_experience %}
+                        <div class="d-flex gap-3 mb-4 last-child-mb-0">
+                            <div class="bg-light p-2 rounded" style="width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building text-secondary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h3 class="h6 fw-bold mb-0">{{ experience.job_title or experience.role }}</h3>
+                                <p class="small mb-0">{{ experience.company_name }} &middot; {{ experience.role }}</p>
+                                <p class="small text-muted mb-2">
+                                    {{ experience.start_date.strftime('%b %Y') }} - {{ experience.end_date.strftime('%b %Y') if experience.end_date else 'Present' }}
+                                </p>
+                                <p class="small mb-0">{{ experience.description }}</p>
+                            </div>
+                        </div>
+                        {% if not loop.last %}<hr class="my-3 text-muted opacity-25">{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small mb-0">No work experience added yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="ln-card mb-3">
+            <div class="ln-card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="h6 fw-bold mb-0">Education</h2>
+                {% if user.id == session.get('user_id') %}
+                <a href="{{ url_for('add_education') }}" class="text-muted"><i class="fas fa-plus"></i></a>
+                {% endif %}
+            </div>
+            <div class="ln-card-body">
+                {% if user.education %}
+                    {% for education in user.education %}
+                        <div class="d-flex gap-3 mb-4 last-child-mb-0">
+                            <div class="bg-light p-2 rounded" style="width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-graduation-cap text-secondary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h3 class="h6 fw-bold mb-0">{{ education.institution }}</h3>
+                                <p class="small mb-0">{{ education.degree }}</p>
+                                <p class="small text-muted mb-0">Class of {{ education.year_of_passing }}</p>
+                            </div>
+                        </div>
+                        {% if not loop.last %}<hr class="my-3 text-muted opacity-25">{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small mb-0">No education history added yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="ln-card mb-3">
+            <div class="ln-card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="h6 fw-bold mb-0">Skills</h2>
+                {% if user.id == session.get('user_id') %}
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('add_skills') }}" class="text-muted"><i class="fas fa-plus"></i></a>
+                    <a href="{{ url_for('edit_skills', user_id=user.id) }}" class="text-muted"><i class="fas fa-pencil-alt"></i></a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="ln-card-body">
+                {% if user_skills %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in user_skills %}
+                            {% for skill_item in skill.skill_name.split(',') %}
+                                <span class="badge rounded-pill bg-light text-dark border px-3 py-2 small fw-bold">{{ skill_item.strip() }}</span>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">No skills listed yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Sidebar -->
+    <aside class="ln-profile-sidebar">
+        <div class="ln-card p-3 ln-sticky-sidebar">
+            <h3 class="h6 fw-bold mb-3">Profile Statistics</h3>
+            <div class="border-top pt-3">
+                <div class="d-flex justify-content-between small mb-2">
+                    <span class="text-muted">Total Connections</span>
+                    <span class="text-primary fw-bold">{{ user.connected_count }}</span>
+                </div>
+                <div class="d-flex justify-content-between small mb-2">
+                    <span class="text-muted">Profile Language</span>
+                    <span class="text-primary fw-bold">English</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="text-muted">Public Profile & URL</span>
+                    <a href="#" class="text-primary fw-bold text-decoration-none">Edit</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="ln-card p-3 mt-3">
+            <h3 class="h6 fw-bold mb-3">People you may know</h3>
+            {% if suggested_users %}
+                {% for s_user in suggested_users %}
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <a href="{{ url_for('user_detail_with_id', user_id=s_user.id) }}">
+                        {% if s_user.profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/' + s_user.profile_picture) }}" class="ln-avatar ln-avatar-sm" alt="{{ s_user.username }}">
+                        {% else %}
+                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                        {% endif %}
+                    </a>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="small fw-bold text-truncate"><a href="{{ url_for('user_detail_with_id', user_id=s_user.id) }}" class="text-dark text-decoration-none">{{ s_user.username }}</a></div>
+                        <div class="small text-muted text-truncate">{{ s_user.headline or 'Professional' }}</div>
+                        <form action="{{ url_for('connect', receiver_id=s_user.id) }}" method="POST" class="mt-1">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold px-3 py-0">Connect</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="small text-muted">Building your network is easy!</p>
+            {% endif %}
+            <a href="{{ url_for('mynetwork') }}" class="btn btn-outline-secondary btn-sm w-100 rounded-pill fw-bold mt-2">Grow Network</a>
+        </div>
+    </aside>
+</div>
+{% endblock %}

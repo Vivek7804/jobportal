@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile | SkillNest{% endblock %}
+
+{% block content %}
+<div class="ln-container" style="max-width: 800px;">
+    <div class="ln-card">
+        <div class="ln-card-header bg-white">
+            <h1 class="h5 mb-0 fw-bold">Edit Profile</h1>
+        </div>
+        <div class="ln-card-body">
+            <form method="POST" enctype="multipart/form-data" class="row g-3">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="col-12">
+                    <label for="cover_photo" class="form-label small fw-bold">Cover Photo</label>
+                    <div class="position-relative mb-2" style="height: 150px; background: #e0e0e0; border-radius: 8px; overflow: hidden;">
+                        {% if user.cover_photo %}
+                            <img src="{{ url_for('static', filename='uploads/' + user.cover_photo) }}" class="w-100 h-100 object-fit-cover" id="cover-preview">
+                        {% else %}
+                            <div class="w-100 h-100 bg-secondary opacity-25" id="cover-preview"></div>
+                        {% endif %}
+                        <label for="cover_photo_input" class="btn btn-light btn-sm position-absolute top-50 start-50 translate-middle shadow-sm">
+                            <i class="fas fa-camera"></i> Change cover
+                        </label>
+                        <input type="file" id="cover_photo_input" name="cover_photo" class="d-none" accept="image/*" onchange="previewImage(this, 'cover-preview')">
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="profile_picture" class="form-label small fw-bold">Profile Picture</label>
+                    <div class="text-center">
+                        <div class="position-relative d-inline-block">
+                            {% if user.profile_picture %}
+                                <img src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" class="ln-avatar ln-avatar-lg border bg-white" id="avatar-preview">
+                            {% else %}
+                                <i class="fas fa-user-circle fa-5x text-secondary" id="avatar-preview"></i>
+                            {% endif %}
+                            <label for="profile_picture_input" class="btn btn-light btn-sm position-absolute bottom-0 start-100 translate-middle rounded-circle shadow-sm" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <input type="file" id="profile_picture_input" name="profile_picture" class="d-none" accept="image/*" onchange="previewImage(this, 'avatar-preview')">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label for="username" class="form-label small fw-bold">Username</label>
+                        <input type="text" id="username" name="username" class="form-control rounded-pill" value="{{ user.username }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="headline" class="form-label small fw-bold">Headline</label>
+                        <input type="text" id="headline" name="headline" class="form-control rounded-pill" value="{{ user.headline or '' }}" placeholder="Ex: Software Engineer at SkillNest">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="email" class="form-label small fw-bold">Email</label>
+                    <input type="email" id="email" name="email" class="form-control rounded-pill" value="{{ user.email }}" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="phone_number" class="form-label small fw-bold">Phone Number</label>
+                    <input type="text" id="phone_number" name="phone_number" class="form-control rounded-pill" value="{{ user.phone_number or '' }}">
+                </div>
+
+                <div class="col-12">
+                    <label for="location" class="form-label small fw-bold">Location</label>
+                    <input type="text" id="location" name="location" class="form-control rounded-pill" value="{{ user.location or '' }}" placeholder="Ex: San Francisco, California">
+                </div>
+
+                <div class="col-12">
+                    <label for="bio" class="form-label small fw-bold">About (Bio)</label>
+                    <textarea id="bio" name="bio" class="form-control" rows="4" style="border-radius: 12px;">{{ user.bio or '' }}</textarea>
+                </div>
+
+                <div class="col-12 text-end mt-4">
+                    <a href="{{ url_for('profile') }}" class="btn btn-light rounded-pill px-4 me-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewImage(input, previewId) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById(previewId);
+            if (preview.tagName === 'IMG') {
+                preview.src = e.target.result;
+            } else {
+                preview.style.background = 'url(' + e.target.result + ') center/cover';
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

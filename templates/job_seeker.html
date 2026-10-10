@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}Discover Jobs | SkillNest{% endblock %}
+
+{% block content %}
+<section class="hero-panel fade-up mb-4">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+            <p class="text-uppercase mb-2 small fw-semibold">Talent Discovery Workspace</p>
+            <h1 class="display-6 mb-2">Build your next career move with smarter matching</h1>
+            <p class="mb-0 opacity-75">
+                Search with advanced filters, track your saves, and discover opportunities ranked to your profile.
+            </p>
+        </div>
+        <div class="col-lg-4">
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="metric-card">
+                        <div class="metric-label">Results</div>
+                        <div class="metric-value">{{ total_results }}</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="metric-card">
+                        <div class="metric-label">Open Jobs</div>
+                        <div class="metric-value">{{ open_jobs }}</div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="metric-card">
+                        <div class="metric-label">Average Salary (LPA)</div>
+                        <div class="metric-value">{{ "%.1f"|format(avg_salary) if avg_salary else "N/A" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="panel mb-4 fade-up">
+    <div class="panel-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-sliders-h me-2"></i>Advanced Filters</span>
+        <a href="{{ url_for('jobseeker_dashboard') }}" class="btn btn-sm btn-soft">Reset</a>
+    </div>
+    <div class="p-3 p-md-4">
+        <form method="GET" action="{{ url_for('search_jobs') }}">
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                    <label for="query" class="form-label small fw-semibold">Keyword</label>
+                    <input id="query" class="form-control" type="text" name="query" value="{{ filters.query }}" placeholder="Role, company, skill">
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <label for="location" class="form-label small fw-semibold">Location</label>
+                    <input id="location" class="form-control" type="text" name="location" value="{{ filters.location }}" list="location_list" placeholder="City or remote">
+                    <datalist id="location_list">
+                        {% for location in locations %}
+                            <option value="{{ location }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="col-md-6 col-lg-2">
+                    <label for="job_type" class="form-label small fw-semibold">Type</label>
+                    <select id="job_type" class="form-select" name="job_type">
+                        <option value="">All</option>
+                        {% for option in job_types %}
+                            <option value="{{ option }}" {% if filters.job_type == option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <label for="status" class="form-label small fw-semibold">Status</label>
+                    <select id="status" class="form-select" name="status">
+                        <option value="">All</option>
+                        {% for option in statuses %}
+                            <option value="{{ option }}" {% if filters.status == option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label for="min_salary" class="form-label small fw-semibold">Min LPA</label>
+                    <input id="min_salary" class="form-control" type="number" name="min_salary" step="0.1" min="0" value="{{ filters.min_salary if filters.min_salary is not none else '' }}">
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label for="max_salary" class="form-label small fw-semibold">Max LPA</label>
+                    <input id="max_salary" class="form-control" type="number" name="max_salary" step="0.1" min="0" value="{{ filters.max_salary if filters.max_salary is not none else '' }}">
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <label for="sort" class="form-label small fw-semibold">Sort By</label>
+                    <select id="sort" class="form-select" name="sort">
+                        <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest First</option>
+                        <option value="oldest" {% if filters.sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                        <option value="salary_high" {% if filters.sort == 'salary_high' %}selected{% endif %}>Highest Salary</option>
+                        <option value="salary_low" {% if filters.sort == 'salary_low' %}selected{% endif %}>Lowest Salary</option>
+                        <option value="company" {% if filters.sort == 'company' %}selected{% endif %}>Company A-Z</option>
+                    </select>
+                </div>
+                <div class="col-lg-5 d-flex align-items-end gap-2">
+                    <button class="btn btn-brand w-100" type="submit">
+                        <i class="fas fa-search me-2"></i>Apply Filters
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="fade-up">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Curated Opportunities</h2>
+        <small class="text-muted">Page {{ pagination.page }} of {{ pagination.pages if pagination.pages else 1 }}</small>
+    </div>
+
+    {% if jobs %}
+        <div class="row g-4">
+            {% for job in jobs %}
+                <div class="col-md-6 col-xl-4">
+                    <article class="job-card p-3 p-md-4">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                {% if job.photo %}
+                                    <img src="{{ url_for('static', filename='uploads/' + job.photo) }}" alt="{{ job.company }}" class="job-image">
+                                {% else %}
+                                    <div class="job-image d-flex align-items-center justify-content-center bg-light">
+                                        <i class="fas fa-building text-secondary"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h3 class="h6 mb-1">{{ job.title }}</h3>
+                                    <p class="mb-0 job-meta">{{ job.company }}</p>
+                                </div>
+                            </div>
+                            <span class="chip chip-primary">{{ job.job_type }}</span>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <span class="chip {% if job.job_status|lower == 'open' %}chip-success{% else %}chip-warning{% endif %}">
+                                {{ job.job_status }}
+                            </span>
+                            {% if job.match_score %}
+                                <span class="chip chip-primary">Match {{ job.match_score }}%</span>
+                            {% endif %}
+                        </div>
+
+                        <p class="job-meta mb-2"><i class="fas fa-location-dot me-2"></i>{{ job.location }}</p>
+                        <p class="job-meta mb-3"><i class="fas fa-wallet me-2"></i>
+                            {% if job.salary %}
+                                ₹{{ "%.1f"|format(job.salary|float) }} LPA
+                            {% else %}
+                                Salary Not Disclosed
+                            {% endif %}
+                        </p>
+
+                        {% if job.match_tags %}
+                            <div class="mb-3 d-flex flex-wrap gap-2">
+                                {% for tag in job.match_tags %}
+                                    <span class="chip chip-warning">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <p class="text-muted small mb-3">
+                            {{ (job.description or "No description available.")[:130] }}{% if (job.description or '')|length > 130 %}...{% endif %}
+                        </p>
+
+                        <div class="d-flex gap-2 mt-auto">
+                            <a href="{{ url_for('job_details', job_id=job.id) }}" class="btn btn-brand flex-grow-1">View</a>
+                            {% if job.id in applied_job_ids %}
+                                <button class="btn btn-soft flex-grow-1" disabled>Applied</button>
+                            {% else %}
+                                <a href="{{ url_for('job_details', job_id=job.id) }}" class="btn btn-soft flex-grow-1">Quick View</a>
+                            {% endif %}
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="panel p-5 text-center">
+            <i class="fas fa-search fa-2x text-muted mb-3"></i>
+            <h3 class="h5">No matching jobs found</h3>
+            <p class="text-muted mb-0">Try adjusting filters or using broader keywords.</p>
+        </div>
+    {% endif %}
+</section>
+
+{% if pagination.pages > 1 %}
+    <nav class="mt-4" aria-label="Job pagination">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for(request.endpoint, query=filters.query, location=filters.location, job_type=filters.job_type, status=filters.status, min_salary=filters.min_salary, max_salary=filters.max_salary, sort=filters.sort, page=pagination.prev_num if pagination.has_prev else pagination.page) }}">Previous</a>
+            </li>
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for(request.endpoint, query=filters.query, location=filters.location, job_type=filters.job_type, status=filters.status, min_salary=filters.min_salary, max_salary=filters.max_salary, sort=filters.sort, page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for(request.endpoint, query=filters.query, location=filters.location, job_type=filters.job_type, status=filters.status, min_salary=filters.min_salary, max_salary=filters.max_salary, sort=filters.sort, page=pagination.next_num if pagination.has_next else pagination.page) }}">Next</a>
+            </li>
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

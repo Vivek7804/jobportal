@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal Reports</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center">Job Portal Reports</h2>
+
+        <!-- Date Filter -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label>Start Date:</label>
+                <input type="date" id="startDate" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label>End Date:</label>
+                <input type="date" id="endDate" class="form-control">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary" onclick="fetchAllReports()">Generate Reports</button>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Total Jobs Per Company</h4>
+                <table class="table table-bordered">
+                    <thead><tr><th>Company</th><th>Total Jobs</th></tr></thead>
+                    <tbody id="totalJobsCompany"></tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Jobs Per Location</h4>
+                <table class="table table-bordered">
+                    <thead><tr><th>Location</th><th>Total Jobs</th></tr></thead>
+                    <tbody id="totalJobsLocation"></tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Jobs Per Type</h4>
+                <table class="table table-bordered">
+                    <thead><tr><th>Job Type</th><th>Total Jobs</th></tr></thead>
+                    <tbody id="totalJobsType"></tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Jobs Per Status</h4>
+                <table class="table table-bordered">
+                    <thead><tr><th>Job Status</th><th>Total Jobs</th></tr></thead>
+                    <tbody id="totalJobsStatus"></tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Applications Per Job</h4>
+                <table class="table table-bordered">
+                    <thead><tr><th>Job Title</th><th>Total Applications</th></tr></thead>
+                    <tbody id="totalApplicationsJob"></tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Total Applications Per User</h4>
+                <table class="table table-bordered">
+                    <thead><tr><th>Username</th><th>Total Applications</th></tr></thead>
+                    <tbody id="totalApplicationsUser"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fetchAllReports() {
+            let startDate = document.getElementById("startDate").value || "2000-01-01";
+            let endDate = document.getElementById("endDate").value || new Date().toISOString().split('T')[0];
+
+            fetchReport('/reports/total_jobs_per_company', 'totalJobsCompany', ['company', 'total_jobs'], startDate, endDate);
+            fetchReport('/reports/total_jobs_per_location', 'totalJobsLocation', ['location', 'total_jobs'], startDate, endDate);
+            fetchReport('/reports/total_jobs_per_type', 'totalJobsType', ['job_type', 'total_jobs'], startDate, endDate);
+            fetchReport('/reports/total_jobs_per_status', 'totalJobsStatus', ['job_status', 'total_jobs'], startDate, endDate);
+            fetchReport('/reports/total_applications_per_job', 'totalApplicationsJob', ['job_title', 'total_applications'], startDate, endDate);
+            fetchReport('/reports/total_applications_per_user', 'totalApplicationsUser', ['username', 'total_applications'], startDate, endDate);
+        }
+
+        function fetchReport(url, tableId, keys, startDate, endDate) {
+            fetch(`${url}?start_date=${startDate}&end_date=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    let tableBody = document.getElementById(tableId);
+                    tableBody.innerHTML = "";
+                    data.forEach(row => {
+                        tableBody.innerHTML += `<tr><td>${row[keys[0]]}</td><td>${row[keys[1]]}</td></tr>`;
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+landing_page.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skillnest - Find Your Dream Job</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar {
+            background-color: #ffffff;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            color: #2a2a2a;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a4a4a;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #2563eb;
+        }
+
+        .hero {
+            padding: 120px 0 60px;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .hero .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .hero-content {
+            flex: 1;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        .hero-image {
+            flex: 1;
+            max-width: 500px;
+            animation: slideInRight 1s ease-out;
+        }
+
+        .animated-text {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        .animated-text span {
+            color: #ffd700;
+        }
+
+        .animated-subtext {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out forwards;
+            animation-delay: 1s;
+        }
+
+        .cta-button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            background-color: #ffd700;
+            color: #2a2a2a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .features {
+            padding: 4rem 0;
+        }
+
+        .features .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-card i {
+            color: #2563eb;
+            margin-bottom: 1rem;
+        }
+
+        .trusted-companies {
+            padding: 3rem 0;
+            background-color: #ffffff;
+            text-align: center;
+        }
+
+        .company-logos {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .company-logo {
+            max-width: 120px;
+            height: auto;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .company-logo:hover {
+            filter: grayscale(0);
+            transform: scale(1.1);
+        }
+
+        .stats-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-item {
+            margin: 1.5rem 0;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .testimonials {
+            padding: 4rem 0;
+            background-color: #f8fafc;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        footer {
+            background-color: #1e293b;
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1.5rem;
+            color: #ffd700;
+        }
+
+        .footer-links a {
+            display: block;
+            color: #94a3b8;
+            text-decoration: none;
+            margin-bottom: 0.8rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #2563eb;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: #2563eb;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #334155;
+            color: #94a3b8;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .animated-text {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">Skillnest</h1>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="/signin">Signin</a>
+                <a href="/signup">Signup</a>
+                <a href="/about">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="animated-text">Find Your <span>Dream Job</span> Today</h1>
+                <p class="animated-subtext">Join thousands of companies and candidates making connections</p>
+                <a class="cta-button" href="/signin" >Get Started</a>
+            </div>
+            <img src="{{ url_for('static', filename='images/home.avif') }}" alt="Career" class="hero-image">
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <div class="feature-card">
+                <i class="fas fa-search fa-3x"></i>
+                <h3>Smart Search</h3>
+                <p>Find jobs that match your skills and preferences</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-briefcase fa-3x"></i>
+                <h3>Employer Solutions</h3>
+                <p>Reach qualified candidates faster</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line fa-3x"></i>
+                <h3>Career Growth</h3>
+                <p>Tools and resources to boost your career</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="trusted-companies">
+        <div class="container">
+            <h2>Trusted by Top Companies</h2>
+            <div class="company-logos">
+                <svg width="120" height="60" viewBox="0 0 120 60" class="company-logo">
+                    <rect width="120" height="60" rx="8" fill="#2563eb"/>
+                    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+                          fill="white" font-family="Arial" font-weight="bold" font-size="20">
+                        TechCorp
+                    </text>
+                </svg>
+
+                <svg width="120" height="60" viewBox="0 0 120 60" class="company-logo">
+                    <rect width="120" height="60" rx="8" fill="#1e40af"/>
+                    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+                          fill="#ffd700" font-family="Arial" font-weight="bold" font-size="18">
+                        INNOVATE
+                    </text>
+                </svg>
+
+                <svg width="120" height="60" viewBox="0 0 120 60" class="company-logo">
+                    <rect width="120" height="60" rx="8" fill="#2dd4bf"/>
+                    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+                          fill="white" font-family="Arial" font-size="16">
+                        Digital
+                    </text>
+                    <text x="50%" y="70%" dominant-baseline="middle" text-anchor="middle" 
+                          fill="white" font-family="Arial" font-size="12">
+                        Solutions
+                    </text>
+                </svg>
+
+                <svg width="120" height="60" viewBox="0 0 120 60" class="company-logo">
+                    <rect width="120" height="60" rx="8" fill="#f59e0b"/>
+                    <path d="M30 20 L40 40 L50 20 L60 40 L70 20 L80 40 L90 20" 
+                          stroke="white" stroke-width="2" fill="none"/>
+                    <text x="50%" y="75%" dominant-baseline="middle" text-anchor="middle" 
+                          fill="white" font-family="Arial" font-size="14">
+                        StartupHub
+                    </text>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">50,000+</div>
+                    <div class="stat-text">Job Opportunities</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-text">Successful Hires</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5,000+</div>
+                    <div class="stat-text">Partner Companies</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Skillnest</h4>
+                    <p>Connecting talent with opportunity worldwide</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <div class="footer-links">
+                        <a href="#home">Home</a>
+                        <a href="#jobs">Jobs</a>
+                        <a href="#employers">Employers</a>
+                        <a href="#contact">Contact</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <div class="footer-links">
+                        <a href="#">Career Blog</a>
+                        <a href="#">Resume Builder</a>
+                        <a href="#">Interview Tips</a>
+                        <a href="#">FAQ</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <div class="footer-links">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 Skillnest. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

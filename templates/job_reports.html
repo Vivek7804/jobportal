@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Reports</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Job Reports</h2>
+        <!-- Filter Form -->
+        <form method="GET" action="{{ url_for('job_reports') }}">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <input type="text" name="title" class="form-control" placeholder="Job Title" value="{{ request.args.get('title') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="company" class="form-control" placeholder="Company" value="{{ request.args.get('company') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="location" class="form-control" placeholder="Location" value="{{ request.args.get('location') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="job_type" class="form-control" placeholder="Job Type" value="{{ request.args.get('job_type') }}">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <input type="text" name="job_status" class="form-control" placeholder="Job Status" value="{{ request.args.get('job_status') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="min_salary" class="form-control" placeholder="Min Salary" value="{{ request.args.get('min_salary') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="max_salary" class="form-control" placeholder="Max Salary" value="{{ request.args.get('max_salary') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="experience" class="form-control" placeholder="Experience (Years)" value="{{ request.args.get('experience') }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Report Table -->
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Job Type</th>
+                    <th>Status</th>
+                    <th>Experience</th>
+                    <th>Salary</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if jobs %}
+                    {% for job in jobs %}
+                        <tr>
+                            <td>{{ job.id }}</td>
+                            <td>{{ job.title }}</td>
+                            <td>{{ job.company }}</td>
+                            <td>{{ job.location }}</td>
+                            <td>{{ job.job_type }}</td>
+                            <td>{{ job.job_status }}</td>
+                            <td>{{ job.experience }}</td>
+                            <td>{{ job.salary }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No jobs found for the given criteria.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
